@@ -1,0 +1,43 @@
+---
+title: "Homework Lecture 6 Problem 6"
+author: "Priya Jindal"
+date: "10/23/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(bio3d)
+
+# The input to this function is the kinase name that we want to study
+# This function analyzes the protein and drug interation, to use it
+# just call the function and pass it the kinase name as an argument
+# The output of this function will be a graph showing the B-factor 
+# trends for each kinase
+analyzeProtein <- function(pName){
+  s1 <- read.pdb(pName)
+  s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+  s1.b <- s1.chainA$atom$b
+  plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+}
+
+#method call for kinase with drug
+analyzeProtein("4AKE")
+
+```
+```{r}
+#method call for kinase with no drug
+analyzeProtein("1AKE")
+```
+```{r}
+#method call for kinase with drug
+analyzeProtein("1E4Y")
+
+```
+
+

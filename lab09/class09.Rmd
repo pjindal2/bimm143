@@ -1,0 +1,129 @@
+---
+title: "Class 9 Unsupervised Mini Project"
+author: "Priya Jindal"
+date: "10/29/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+fna.data <- "WisconsinCancer.csv"
+wisc.df <- read.csv(fna.data)
+table(wisc.df$diagnosis)
+wisc.data <- as.matrix(wisc.df[,3:32])
+
+#Set row names od wisc.data
+row.names(wisc.data) <- wisc.df$id
+head(wisc.data)
+
+```
+
+Store the disgnosisi for reference in the future as a separate vector 
+
+```{r}
+#Q1. How many observations are in this dataset?
+nrow(wisc.df)
+```
+
+```{r}
+#Q2. How many of the observations have a malignant diagnosis?
+table(wisc.df$diagnosis)
+```
+
+```{r}
+#Q3. How many variables/features in the data are suffixed with _mean
+length(grep("_mean", colnames(wisc.df)))
+```
+Performing PCA
+The next step in your analysis is to perform principal component analysis (PCA) on wisc.data.
+
+It is important to check if the data need to be scaled before performing PCA. Recall two common reasons for scaling data include:
+
+The input variables use different units of measurement.
+The input variables have significantly different variances.
+Check the mean and standard deviation of the features (i.e. columns) of the wisc.data to determine if the data should be scaled. Use the colMeans() and apply() functions like you’ve done before.
+
+```{r}
+# Check column means and standard deviations
+round(colMeans(wisc.data), 3)
+
+```
+```{r}
+round(apply(wisc.data,2,sd), 3)
+```
+
+Execute PCA with the prcomp() function on the wisc.data, scaling if appropriate, and assign the output model to wisc.pr.
+### THESE VALUES ARE VERY DIFFERENT SO I WILL US SCaLE = TRUE for PCA
+```{r}
+wisc.pr <- prcomp(wisc.data, scale=TRUE)
+summary(wisc.pr)
+```
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[,2], col = wisc.df$diagnosis, xlab = "PC1", ylab = "PC2")
+
+```
+Q4. From your results, what proportion of the original variance is captured by the first principal components (PC1)?
+```{r}
+x <- summary(wisc.pr)
+x
+#0.4427
+```
+
+Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data?
+```{r}
+# 3 required (read across PCs in summary)
+```
+
+
+Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+```{r}
+# you need 7 PCs based on the cumulative original varaince shown in the summary
+```
+
+Q9. For the first principal component, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean?
+```{r}
+wisc.pr$rotation["concave.points_mean",1]
+
+```
+
+Q10. What is the minimum number of principal components required to explain 80% of the variance of the data?
+```{r}
+x <- summary(wisc.pr)
+which(x$importance["Cumulative Proportion",] > 0.8)[1]
+```
+Hello 
+
+```{r}
+diagnosis <- wisc.df$diagnosis
+data.scaled <- scale(wisc.data)
+data.dist <- dist(data.scaled)
+wisc.hclust <- hclust(data.dist, method = "complete")
+plot(wisc.hclust)
+abline(wisc.hclust, col = "red", lty =2)
+
+```
+
+
+```{r}
+wisc.hclust.clusters <- cutree(wisc.hclust, 4)
+table(wisc.hclust.clusters, diagnosis)
+```
+
+7. Prediction
+We will use the predict() function that will take our PCA model from before and new cancer cell data and project that data onto our PCA space.
+
+```{r}
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+npc <- predict(wisc.pr, newdata=new)
+npc
+```
+```{r}
+plot(wisc.pr$x[,1:2], col=diagnosis)
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+```
+
+Q17. Which of these new patients should we prioritize for follow up based on your results?

@@ -1,0 +1,65 @@
+---
+title: "Class 7 R functions and packages"
+author: "Priya Jindal"
+date: "10/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R functions revisited 
+
+```{r}
+source("http://tinyurl.com/rescale-R")
+
+rescale(1:10)
+rescale(c(1, 2, NA, 4, 10))
+x <- c(1, 2, NA, 3, NA)
+y <- c(NA, 3, NA, 3, 4)
+
+is.na(x)
+```
+```{r}
+#which function tells where the true values are
+which(is.na(x))
+```
+
+```{r}
+#sum of true, false values will tell me how many true values there are (true = 1, false = 0)
+sum(c(TRUE, TRUE, FALSE, TRUE))
+sum(is.na(x) & is.na(y))
+```
+```{r}
+bothNA <- function(x, y){
+  if (length(x) != length(y)){
+    stop("NOT SAME LENGTH")
+  }
+  sum(is.na(x) & is.na(y))
+}
+x2 <- c(TRUE, FALSE, NA, NA, NA)
+y2 <- c(NA, NA, NA)
+bothNA(x2, y2)
+
+
+
+```
+
+```{r}
+grade <- function(x){
+  y <- replace(x, is.na(x), 0)
+  mean(y[ -which.min(y)])
+  #(sum(y) - min(y))/(length(y)-1)
+}
+
+grade(c(90, NA, 100, NA, 90, 95))
+url <- "https://tinyurl.com/gradeinput"
+hw <-read.csv(url, row.names = 1)
+```
+
+```{r}
+#1 represents rows and 2 represents columns 
+apply(hw, 1, grade)
+```
+
