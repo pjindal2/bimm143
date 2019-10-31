@@ -1,0 +1,96 @@
+---
+title: "Class6 R functions"
+author: "Priya Jindal"
+date: "10/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# This is H1
+This is my work from class6 in **BIMM143**
+
+## This is heading size 2
+
+### This is heading 3 etc.
+
+```{r}
+plot(1:10)
+```
+
+## Practice reading files (again...)
+
+```{r}
+read.table("test1.txt", sep=",", header=TRUE)
+read.table("test2.txt", sep="$", header=TRUE)
+read.table("test3.txt")
+```
+Insert a code block: ctrl + alt + i
+```{r}
+add <- function(x, y=1){
+  #sum input x and y
+  x + y
+}
+```
+
+```{r}
+add(1)
+add(5,5)
+add(c(1,2,3),4)
+add(x=1, y=2)
+
+rescale <- function(x){
+  rng <- range(x)
+  (x-rng[1])/(rng[2] -rng[1])
+}
+```
+
+```{r}
+rescale(1:10)
+```
+
+# Section 2: of hands-on sheet
+
+Install the **bio3d** package for sequence and structure analysis 
+
+installed once already
+
+```{r}
+library(bio3d)
+s1 <- read.pdb("4AKE") # kinase with drug
+s2 <- read.pdb("1AKE") # kinase no drug
+s3 <- read.pdb("1E4Y") # kinase with drug
+
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s3, chain="A", elety="CA")
+
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+
+```
+
+# Answer to questions 
+1. read.pdb Returns a list of class "pdb"
+2. 
+
+```{r}
+analyzeProtein <- function(pName){
+  s1 <- read.pdb(pName)
+  s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+  s1.b <- s1.chainA$atom$b
+  plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+}
+
+analyzeProtein("4AKE")
+```
+
+
+
+
