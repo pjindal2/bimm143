@@ -1,0 +1,45 @@
+---
+title: "LAB 11 Work"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Read CSV 
+
+data <- read.csv("Data Export Summary.csv")
+data
+```
+
+
+Q1: Download a CSV file from the PDB site (accessible from “Analyze” -> “PDB Statistics” >
+“by Experimental Method and Molecular Type”. Move this CSV file into your RStudio project
+and determine the percentage of structures solved by X-Ray and Electron Microscopy. Also can
+you determine what proportion of structures are protein?
+
+```{r}
+# Proportion of structures total
+round((data$Total) / sum(data$Total) * 100, 2)
+```
+```{r}
+#Proportion of protein
+round(sum(data$Proteins) / sum(data$Total) * 100,2)
+```
+
+```{r}
+# Here we are reading the 1HSG PDB structure and selecting teh protein component and 
+# writing out only the protein component. Then we will repeat the same thing for 
+# the ligand (drug) 
+
+library(bio3d)
+data <- read.pdb("1hsg.pdb")
+protein <- atom.select(data, "protein", value = TRUE)
+write.pdb(protein, file="1hsg.protein.pdb")
+ligand <- atom.select(data, "ligand", value = TRUE)
+write.pdb(ligand, file="1hsg.ligand.pdb")
+```
+
+
