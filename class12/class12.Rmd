@@ -1,0 +1,11 @@
+---
+title: "Lab 12 Classwork: Drug Discovery"
+author: "Priya Jindal"
+date: "11/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
