@@ -1,11 +1,41 @@
 ---
-title: "Lab 12 Classwork: Drug Discovery"
+title: "Lab 12 Classwork: Structural Bioinformatics -Drug Discovery"
 author: "Priya Jindal"
 date: "11/7/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Prep for docking 
+
+We want to produce a protein-only PDB file and a drug only PDB file. 
+
+##1.1 Obtaining and inspecting our output structure 
+
+```{r}
+library(bio3d)
+
+#dowload pdb file
+file.name <- get.pdb("1hsg")
+```
+```{r}
+hiv <- read.pdb("1hsg.pdb")
+
+#GET THE PROTEIN COMPONENT OF THE MOLECULE
+protein <- atom.select(hiv, "protein", value = TRUE)
+write.pdb(protein, file="1hsg_protein.pdb")
+
+#GET THE DRUG COMPONENET (LIGAND)
+ligand <- atom.select(hiv, "ligand", value= TRUE)
+ligand
+write.pdb(ligand, file="1hsg_ligand.pdb")
+```
+
+```{r}
+res <- read.pdb("all.pdbqt", multi=TRUE)
+write.pdb(res, "results.pdb")
 ```
 

@@ -1,0 +1,189 @@
+---
+title: "Class 14: Transcriptomics and the analysis of RNA-Seq data"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## DESeq2 setup 
+
+We will use the DESeq2 package from bioconductor. To install run teh follwing commands. 
+
+```{r eval = FALSE}
+install.packages("BiocManager")
+BiocManager::install()
+BiocManager::install("DESeq2")
+
+```
+
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", stringsAsFactors = FALSE)
+metadata <- read.csv("airway_metadata.csv", stringsAsFactors = FALSE)
+
+```
+
+```{r}
+head(metadata)
+```
+```{r}
+head(counts)
+```
+ How many genes do we have in the dataset? 
+ 
+```{r}
+#num rows= num genes
+nrow(counts)
+```
+ How many experiemnts do we have in this data? 
+```{r}
+#num columns = num experiments 
+ncol(counts) -1
+
+```
+```{r}
+#View(metadata)
+```
+ 
+ Are the means of the drug treated samples different from the control samples, given the std. deviation
+
+We want to see if there is a difference in expression values for control and treated samples. 
+
+First we are finding for each control experiment the expression level mean for each gene (based on the SRR ids = that tells us which sample is control or treatment)
+
+Then we will repeat the same thing for the the treatment expression level for each gene. 
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.mean <- rowSums(counts[ ,control$id])/4
+names(control.mean)<- counts$ensgene
+control.mean
+```
+```{r}
+treatment <- metadata[metadata$dex=="treated",]
+treatment.mean <- rowSums(counts[ ,treatment$id])/length(treatment$id)
+names(treatment.mean)<- counts$ensgene
+```
+Now we want to plot the control means vs the treated means. 
+
+```{r}
+meancounts <- data.frame(control.mean, treatment.mean)
+plot(meancounts$control.mean, meancounts$treatment.mean )
+```
+```{r}
+plot(meancounts$control.mean, meancounts$treatment.mean , log = "xy", xlab = "control", ylab = "treated")
+
+```
+
+We can find candidate differentially expressed genes by looking for genes with a large change between control and dex-treated samples. We usually look at the log2 of the fold change, because this has better mathematical properties.
+
+Here we calculate log2foldchange, add it to our meancounts data.frame
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treatment.mean"]/meancounts[,"control.mean"])
+
+```
+```{r}
+
+head(meancounts)
+```
+```{r}
+#which tells us indices of where the data is equal to 0
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+
+```
+A common threshold used for calling something differentially expressed is a log2(FoldChange) of greater than 2 or less than -2. Let’s filter the dataset both ways to see how many genes are up or down-regulated.
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+sum(up.ind)
+sum(down.ind)
+```
+
+# DESeq2 analysis 
+Let’s do this the right way. DESeq2 is an R package for analyzing count-based NGS data like RNA-seq. It is available from Bioconductor. Bioconductor is a project to provide tools for analyzing high-throughput genomic data including RNA-seq, ChIP-seq and arrays. You can explore Bioconductor packages here.
+
+Bioconductor packages usually have great documentation in the form of vignettes. For a great example, take a look at the DESeq2 vignette for analyzing count data. This 40+ page manual is packed full of examples on using DESeq2, importing data, fitting models, creating visualizations, references, etc.
+
+```{r}
+library(DESeq2)
+citation("DESeq2")
+```
+
+
+We will use the DESeqDataSetFromMatrix() function to build the required DESeqDataSet object and call it dds, short for our DESeqDataSet. If you get a warning about “some variables in design formula are characters, converting to factors” don’t worry about it. Take a look at the dds object once you create it.
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex, 
+                              tidy=TRUE)
+dds
+dds <- DESeq(dds)
+```
+```{r}
+res <- results(dds)
+```
+
+# Data Visualization 
+Plotting counts
+DESeq2 offers a function called plotCounts() that takes a DESeqDataSet that has been run through the pipeline, the name of a gene, and the name of the variable in the colData that you’re interested in, and plots those values. 
+
+Volcano plots
+Let’s make another commonly produced visualization from this data, namely so-called Volcano plots. These summary figures are frequently used to highlight the proportion of genes that are both significantly regulated and display a high fold change.
+
+First, let’s add a column called sig to our full res results that evaluates to TRUE only if padj<0.05 and the absolute log2FoldChange>2, FALSE if not, and NA if padj is also NA.
+
+```{r}
+res$sig <- res$padj<0.05 & abs(res$log2FoldChange)>2
+table(res$sig)
+```
+
+Make the colcano plot using res data
+```{r}
+palette(c("gray", "blue"))
+
+plot(res$log2FoldChange, -log(res$padj), col=res$sig+1, ylab="-Log(P-value)", xlab= "Log2(FoldChange)")
+
+abline(v=c(-2,2), col="darkgray", lty=2)
+abline(h=-log(0.1), col="darkgray", lty=2)
+
+```
+```{r}
+palette("default")
+
+mycols <- rep("gray", nrow(res))
+
+#make points with +2 or -2 fold change red 
+mycols[ abs(res$log2FoldChange) > 2 ]  <- "red" 
+
+
+inds <- (res$padj < 0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+#Volcano plot with custom colors 
+plot( res$log2FoldChange,  -log(res$padj), 
+ col=mycols, ylab="-Log(P-value)", xlab="Log2(FoldChange)" )
+
+abline(v=c(-2,2), col="gray", lty=2)
+abline(h=-log(0.1), col="gray", lty=2)
+```
+
+We can do the same thing with ggplot: 
+
+```{r eval=FALSE}
+ggplot(as.data.frame(res), aes(log2FoldChange, -log10(pvalue), col=sig)) + 
+    geom_point() + 
+    ggtitle("Volcano plot")
+```
+
+Save the results csv file 
+```{r}
+write.csv(res, file="experession_results.csv")
+```
+
