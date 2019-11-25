@@ -58,7 +58,6 @@ Then we will repeat the same thing for the the treatment expression level for ea
 control <- metadata[metadata[,"dex"]=="control",]
 control.mean <- rowSums(counts[ ,control$id])/4
 names(control.mean)<- counts$ensgene
-control.mean
 ```
 ```{r}
 treatment <- metadata[metadata$dex=="treated",]
