@@ -1,5 +1,5 @@
 ---
-title: "Lab 12 Classwork: Structural Bioinformatics -Drug Discovery"
+title: "Lab 12 Structural Bioinformatics -Drug Discovery"
 author: "Priya Jindal"
 date: "11/7/2019"
 output: github_document
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 We want to produce a protein-only PDB file and a drug only PDB file. 
 
-##1.1 Obtaining and inspecting our output structure 
+##Obtaining and inspecting our output structure 
 
 ```{r}
 library(bio3d)
@@ -21,6 +21,8 @@ library(bio3d)
 #dowload pdb file
 file.name <- get.pdb("1hsg")
 ```
+Read this PDB file into R so we can prepare it for further
+analysis.
 ```{r}
 hiv <- read.pdb("1hsg.pdb")
 
@@ -30,12 +32,36 @@ write.pdb(protein, file="1hsg_protein.pdb")
 
 #GET THE DRUG COMPONENET (LIGAND)
 ligand <- atom.select(hiv, "ligand", value= TRUE)
-ligand
 write.pdb(ligand, file="1hsg_ligand.pdb")
 ```
+## AutoDock Tools
+
+Using AutoDock tools open the 1hsg_protein.pdb file and use ADT to assign charges and aton type to each atom in the protein.Next repeat this with the ligand file. 
+
+Next set up a config files for the docking calculations based on the 3D serach space where the ligand docking will be attempted (use the 3D image of thr protein to determine this). Then use AutoDock Vina software to dock the ligand and get the output of all the docking modes and a table of affinities based on AutoDock Vina's scoring function. 
+
+The best docked mode is the first entry in the all.pdbqt file.
+
+#Inspecting your docking results
+In order to visualize the docks and compare to the crystal conformation of the ligand we will
+process the all.pdbqt to a PDB format file that can be loaded into VMD. To do this we will use R
+and the Bio3D package. 
 
 ```{r}
 res <- read.pdb("all.pdbqt", multi=TRUE)
 write.pdb(res, "results.pdb")
+```
+
+To assess the results quantitatively we will calculate the RMSD (root mean square distance)
+between each of the docking results and the known crystal structure using the bio3d package
+
+Read the original ligand with added hydrogens that you produced earlier and
+use the rmsd() function to compare to your docking results.
+
+
+
+```{r}
+ori <- read.pdb("ligand.pdbqt")
+rmsd(ori, res)
 ```
 
