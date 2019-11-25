@@ -1,4 +1,4 @@
-Class 9 Unsupervised Mini Project
+Class 9 PCA Mini Project
 ================
 Priya Jindal
 10/29/2019
@@ -78,7 +78,7 @@ head(wisc.data)
     ## 84358402                 0.07678
     ## 843786                   0.12440
 
-Store the disgnosisi for reference in the future as a separate vector
+Store the disgnosis for reference in the future as a separate vector
 
 ``` r
 #Q1. How many observations are in this dataset?
@@ -271,8 +271,6 @@ which(x$importance["Cumulative Proportion",] > 0.8)[1]
     ## PC5 
     ##   5
 
-Hello
-
 ``` r
 diagnosis <- wisc.df$diagnosis
 data.scaled <- scale(wisc.data)
@@ -338,3 +336,5 @@ text(npc[,1], npc[,2], c(1,2), col="white")
 
 Q17. Which of these new patients should we prioritize for follow up
 based on your results?
+
+A: Group 2 because the data for that group is more spread out.

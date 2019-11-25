@@ -1,5 +1,5 @@
 ---
-title: "Class 9 Unsupervised Mini Project"
+title: "Class 9 PCA Mini Project"
 author: "Priya Jindal"
 date: "10/29/2019"
 output: github_document
@@ -20,7 +20,7 @@ head(wisc.data)
 
 ```
 
-Store the disgnosisi for reference in the future as a separate vector 
+Store the disgnosis for reference in the future as a separate vector 
 
 ```{r}
 #Q1. How many observations are in this dataset?
@@ -93,7 +93,7 @@ Q10. What is the minimum number of principal components required to explain 80% 
 x <- summary(wisc.pr)
 which(x$importance["Cumulative Proportion",] > 0.8)[1]
 ```
-Hello 
+
 
 ```{r}
 diagnosis <- wisc.df$diagnosis
@@ -127,3 +127,5 @@ text(npc[,1], npc[,2], c(1,2), col="white")
 ```
 
 Q17. Which of these new patients should we prioritize for follow up based on your results?
+
+A: Group 2 because the data for that group is more spread out. 
