@@ -1,0 +1,137 @@
+---
+title: "Cancer Genomics"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Part 1: Using R packages to analyze Cancer Data
+
+The National Cancer Institute (NCI) in the US has established the Genomic Data Commons (or GDC for short) for sharing cancer genomics data-sets.
+
+This includes data from a range of large scale projects such as The Cancer Genome Atlas (TCGA) and other projects. The TGCA project aims to generate comprehensive, multi-dimensional maps of the key genomic changes in major types and sub-types of cancer. 
+
+
+#Q1. How many Cases (i.e. patient samples) have been found to have p53 mutations?
+A. 4,008 cases of it
+
+
+#Q2. What are the top 6 misssense mutations found in this gene?
+A. R175H, R248Q, R273C, R273H, R248W, R282W
+
+##The GenomicDataCommons R package
+
+install the following packages
+"GenomicDataCommons", "TCGAbiolinks", "maftools") 
+
+Once installed load the packages
+```{r}
+library(GenomicDataCommons)
+library(TCGAbiolinks)
+library(maftools)
+```
+
+Now lets check on GDC status:
+```{r}
+status()
+```
+
+##Querying the GDC from R
+
+The are four main sets of metadata that we can query, namely projects(), cases(), files(), and annotations(). We will start with projects()
+
+```{r}
+projects <- getGDCprojects()
+head(projects)
+```
+
+```{r}
+View(projects)
+```
+
+Moving onto cases() we can use an example from the package associated publication to answer our first from question above (i.e. find the number of cases/patients across different projects within the GDC):
+```{r}
+cases_by_project <- cases() %>%
+  facet("project.project_id") %>%
+  aggregations()
+head(cases_by_project)
+```
+
+#Q4. Write the R code to make a barplot of the cases per project. Lets plot this data with a log scale for the y axis (log="y"), rotated axis labels (las=2) and color the bar coresponding to the TCGA-PAAD project.
+
+
+```{r}
+x <- cases_by_project$project.project_id
+
+
+# Make a custom color vector for our plot
+colvec <- rep("lightblue", nrow(x))
+colvec[x$key == "TCGA-PAAD"] <- "red"
+
+# Plot with 'log' for y axis and rotate labels with 'las'
+par(mar = c(12, 4, 0, 0))  
+barplot(x$doc_count, names.arg=x$key, log="y", col=colvec, las=2)
+```
+
+We can use the getSampleFilesSummary() function to determine for a given project how many cases and what type of data we have available for each case:
+
+```{r}
+samp <- getSampleFilesSummary("TCGA-PAAD")
+head(samp)
+
+```
+
+###Part2: Designing a personalized cancer vaccine
+
+##Q1: Identify sequence regions that contain all 9-mer peptides that are only found in the tumor. 
+
+Allign the two sequences and at each index of the mutation, grab 8 amino acids before and after the mutation. 
+
+Allignment: 
+```{r}
+library(bio3d)
+seqs <- read.fasta("lecture18_sequences.fa")
+```
+
+```{r}
+## Calculate positional identity scores
+ide <- conserv(seqs$ali, method="identity")
+##0.5 means there is amismatch bc 50% match is misatch since we are only comparing two sequences. 
+mutant.sites <- which(ide < 1) 
+
+## Exclude gap possitions from analysis
+gaps <- gap.inspect(seqs)
+mutant.sites <- mutant.sites[mutant.sites %in% gaps$f.inds]
+
+mutant.sites
+```
+```{r}
+mutant.names <- paste0(seqs$ali["P53_wt",mutant.sites],
+                       mutant.sites,
+                       seqs$ali["P53_mutant",mutant.sites])
+
+mutant.names
+```
+```{r}
+## Sequence positions surounding each mutant site
+start.position <- mutant.sites - 8
+end.position <-  mutant.sites + 8
+
+# Blank matrix to store sub-sequences
+store.seqs <- matrix("-", nrow=length(mutant.sites), ncol=17)
+rownames(store.seqs) <- mutant.names
+
+## Extract each sub-sequence
+for(i in 1:length(mutant.sites)) {
+  store.seqs[i,] <- seqs$ali["P53_mutant",start.position[i]:end.position[i]]
+}
+
+store.seqs
+```
+```{r}
+## Output a FASTA file for further analysis
+write.fasta(seqs=store.seqs, ids=mutant.names, file="subsequences.fa")
+```
+
