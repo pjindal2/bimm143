@@ -1,4 +1,4 @@
-# Bimm143
+# Bioinformatics: Bimm143
 
 This is my work for [BIMM143 Fall 2019](https://bioboot.github.io/bimm143_F19/) at UC San Diego, it mostly includes R programs for biological data analysis.
 This class is a bioinformatics lab class. 
