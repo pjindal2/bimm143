@@ -7,21 +7,21 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-###Part 1: Using R packages to analyze Cancer Data
+### Part 1: Using R packages to analyze Cancer Data
 
 The National Cancer Institute (NCI) in the US has established the Genomic Data Commons (or GDC for short) for sharing cancer genomics data-sets.
 
 This includes data from a range of large scale projects such as The Cancer Genome Atlas (TCGA) and other projects. The TGCA project aims to generate comprehensive, multi-dimensional maps of the key genomic changes in major types and sub-types of cancer. 
 
 
-#Q1. How many Cases (i.e. patient samples) have been found to have p53 mutations?
+# Q1. How many Cases (i.e. patient samples) have been found to have p53 mutations?
 A. 4,008 cases of it
 
 
-#Q2. What are the top 6 misssense mutations found in this gene?
+# Q2. What are the top 6 misssense mutations found in this gene?
 A. R175H, R248Q, R273C, R273H, R248W, R282W
 
-##The GenomicDataCommons R package
+## The GenomicDataCommons R package
 
 install the following packages
 "GenomicDataCommons", "TCGAbiolinks", "maftools") 
@@ -38,7 +38,7 @@ Now lets check on GDC status:
 status()
 ```
 
-##Querying the GDC from R
+## Querying the GDC from R
 
 The are four main sets of metadata that we can query, namely projects(), cases(), files(), and annotations(). We will start with projects()
 
@@ -59,7 +59,7 @@ cases_by_project <- cases() %>%
 head(cases_by_project)
 ```
 
-#Q4. Write the R code to make a barplot of the cases per project. Lets plot this data with a log scale for the y axis (log="y"), rotated axis labels (las=2) and color the bar coresponding to the TCGA-PAAD project.
+# Q4. Write the R code to make a barplot of the cases per project. Lets plot this data with a log scale for the y axis (log="y"), rotated axis labels (las=2) and color the bar coresponding to the TCGA-PAAD project.
 
 
 ```{r}
@@ -83,9 +83,9 @@ head(samp)
 
 ```
 
-###Part2: Designing a personalized cancer vaccine
+### Part2: Designing a personalized cancer vaccine
 
-##Q1: Identify sequence regions that contain all 9-mer peptides that are only found in the tumor. 
+## Q1: Identify sequence regions that contain all 9-mer peptides that are only found in the tumor. 
 
 Allign the two sequences and at each index of the mutation, grab 8 amino acids before and after the mutation. 
 
