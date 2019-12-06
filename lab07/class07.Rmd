@@ -40,7 +40,7 @@ bothNA <- function(x, y){
 }
 x2 <- c(TRUE, FALSE, NA, NA, NA)
 y2 <- c(NA, NA, NA)
-bothNA(x2, y2)
+
 
 
 
