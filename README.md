@@ -15,7 +15,7 @@ This class is a bioinformatics lab class.
 > class08: [Into to Machine Learning](https://github.com/pjindal2/bimm143/blob/master/class08/lab08.md)
 
 > class09: [PCA analysis](https://github.com/pjindal2/bimm143/blob/master/lab09/class09.md)
-    Performing PCA on breat-cancer data to understand patterns in the dataset that could help classify data to make             predictions on diagnosis. 
+    Performing PCA on breast-cancer data to understand patterns in the dataset that could help classify data to make             predictions on diagnosis. 
     
 > class11: [Structural Bioinformatics](https://github.com/pjindal2/bimm143/blob/master/class11/lab11.md)
 
